@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataFlow Pro - Gestionale</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-950 font-sans antialiased text-slate-800 dark:text-slate-100 overflow-hidden">
+
+    <!-- Notifiche toast personalizzate -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- ========================================== -->
+    <!-- SCHERMATA DI LOGIN / ACCESSO -->
+    <!-- ========================================== -->
+    <div id="login-screen" class="fixed inset-0 z-40 bg-slate-100 dark:bg-slate-950 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200/80 dark:border-slate-800 p-8 space-y-6 my-auto">
+            
+            <!-- Header Brand Login -->
+            <div class="text-center space-y-2">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 mb-2">
+                    <i class="fa-solid fa-database text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Accedi</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Inserisci le tue credenziali per accedere al gestionale</p>
+            </div>
+
+            <!-- Form di Login -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Email o Username</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <input type="email" id="login-email" required value="admin@azienda.it" placeholder="nome@azienda.it" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="login-password" required value="admin123" placeholder="••••••••" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                            <i id="eye-icon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Opzioni e Password Dimenticata -->
+                <div class="flex items-center justify-between text-xs">
+                    <label class="flex items-center space-x-2 cursor-pointer text-slate-600 dark:text-slate-300">
+                        <input type="checkbox" id="remember-me" checked class="w-4 h-4 text-indigo-600 border-slate-300 dark:border-slate-700 rounded focus:ring-indigo-500">
+                        <span>Ricordami</span>
+                    </label>
+                    <button type="button" onclick="showToast('Funzione di recupero password simulata.', 'info')" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">Password dimenticata?</button>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-medium text-sm rounded-xl shadow-md shadow-indigo-500/20 flex items-center justify-center space-x-2 transition-all">
+                    <span>Accedi al Sistema</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <!-- Banner Credenziali Demo Rapide -->
+            <div class="bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl p-4 text-xs space-y-2">
+                <div class="font-semibold text-indigo-900 dark:text-indigo-300 flex items-center justify-between">
+                    <span><i class="fa-solid fa-key mr-1.5"></i> Credenziali Demo Rapide</span>
+                    <span class="text-[10px] bg-indigo-200 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-200 px-2 py-0.5 rounded-full font-mono">Test</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button type="button" onclick="fillDemoCredentials('admin')" class="p-2 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-slate-700 rounded-xl text-left hover:border-indigo-400 transition-all">
+                        <div class="font-bold text-slate-800 dark:text-slate-200">Amministratore</div>
+                        <div class="text-[11px] text-slate-500 truncate">admin@azienda.it</div>
+                    </button>
+                    <button type="button" onclick="fillDemoCredentials('operator')" class="p-2 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-slate-700 rounded-xl text-left hover:border-indigo-400 transition-all">
+                        <div class="font-bold text-slate-800 dark:text-slate-200">Operatore</div>
+                        <div class="text-[11px] text-slate-500 truncate">operatore@azienda.it</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center text-xs text-slate-400">
+                DataFlow Pro © 2026 - Tutti i diritti riservati
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- APPLICAZIONE PRINCIPALE (DASHBOARD) -->
+    <!-- ========================================== -->
+    <div id="main-app" class="hidden flex-col h-full">
+        <!-- Topbar -->
+        <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-database text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold text-slate-900 dark:text-white">DataFlow Pro</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Pannello di Controllo</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="logout()" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400 text-slate-700 dark:text-slate-200 text-xs font-medium rounded-xl transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Esci</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Area Contenuto Dashboard -->
+        <main class="flex-1 p-6 overflow-y-auto space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h2 class="text-lg font-bold mb-2">Benvenuto nel gestionale!</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Hai effettuato l'accesso con successo. Da qui puoi visualizzare e gestire i record del sistema.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC -->
+    <!-- ========================================== -->
+    <script>
+        // Gestione visibilità password
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('login-password');
+            const eyeIcon = document.getElementById('eye-icon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Inserimento credenziali demo rapide
+        function fillDemoCredentials(type) {
+            const emailInput = document.getElementById('login-email');
+            const passwordInput = document.getElementById('login-password');
+            if (type === 'admin') {
+                emailInput.value = 'admin@azienda.it';
+                passwordInput.value = 'admin123';
+            } else {
+                emailInput.value = 'operatore@azienda.it';
+                passwordInput.value = 'operatore123';
+            }
+            showToast('Credenziali ' + type + ' caricate!', 'info');
+        }
+
+        // Gestione Invio Form Login
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            
+            // Simulazione autenticazione riuscita
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userEmail', email);
+
+            showToast('Accesso effettuato con successo!', 'success');
+            
+            setTimeout(() => {
+                checkSession();
+            }, 600);
+        }
+
+        // Controllo Sessione per mostrare/nascondere la schermata di login
+        function checkSession() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const loginScreen = document.getElementById('login-screen');
+            const mainApp = document.getElementById('main-app');
+
+            if (isLoggedIn === 'true') {
+                loginScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                mainApp.classList.add('flex');
+            } else {
+                loginScreen.classList.remove('hidden');
+                mainApp.classList.add('hidden');
+                mainApp.classList.remove('flex');
+            }
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userEmail');
+            checkSession();
+            showToast('Disconnessione effettuata.', 'info');
+        }
+
+        // Sistema di Notifiche Toast
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgColors = 'bg-slate-900 text-white';
+            let icon = 'fa-circle-check text-emerald-400';
+
+            if (type === 'success') {
+                bgColors = 'bg-emerald-600 text-white';
+                icon = 'fa-circle-check text-white';
+            } else if (type === 'info') {
+                bgColors = 'bg-indigo-600 text-white';
+                icon = 'fa-circle-info text-white';
+            }
+
+            toast.className = `pointer-events-auto flex items-center space-x-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium transform transition-all duration-300 translate-y-2 opacity-0 ${bgColors}`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Avvio all'apertura della pagina
+        window.addEventListener('DOMContentLoaded', () => {
+            checkSession();
+        });
+    </script>
+</body>
+</html>
